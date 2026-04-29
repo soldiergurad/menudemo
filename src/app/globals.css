@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #202124;
+  --muted: #6f756f;
+  --line: #ded8cc;
+  --paper: #fffaf1;
+  --accent: #b84b36;
+  --accent-strong: #873424;
+  --green: #3f6f58;
+  --yellow: #e3af42;
+  --white: #ffffff;
+  --shadow: 0 18px 50px rgba(64, 47, 28, .14);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(184, 75, 54, .07), transparent 28%),
+    linear-gradient(315deg, rgba(63, 111, 88, .1), transparent 34%),
+    #ece6da;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.menu-paper {
+  --gap: 30px;
+  background: var(--paper);
+  border: 1px solid rgba(112, 91, 61, .25);
+  box-shadow: var(--shadow);
+  min-height: 760px;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-paper::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(184, 75, 54, .25);
+  pointer-events: none;
+}
+
+.menu-paper.compact {
+  --gap: 20px;
+}
+
+.menu-paper.elegant {
+  --accent: #7d5142;
+  --accent-strong: #49342c;
+  --green: #315b55;
+  --yellow: #d8a35e;
+}
+
+.menu-paper.fresh {
+  --accent: #287c66;
+  --accent-strong: #195848;
+  --green: #ad4e3e;
+  --yellow: #f0bd48;
+}
+
+.restaurant-meta,
+.notice {
+  white-space: pre-line;
+}
+
+.category-title::before {
+  content: "";
+  width: 26px;
+  height: 10px;
+  background: var(--yellow);
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+@media print {
+  body {
+    background: var(--paper);
+  }
+
+  .editor,
+  .preview-toolbar {
+    display: none !important;
+  }
+
+  .app {
+    display: block !important;
+  }
+
+  .preview-wrap {
+    max-height: none !important;
+    padding: 0 !important;
+  }
+
+  .preview-shell {
+    max-width: none !important;
+  }
+
+  .menu-paper {
+    min-height: 100vh;
+    border: 0;
+    box-shadow: none;
+  }
+}

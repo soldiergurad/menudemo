@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>餐饮菜单制作</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --muted: #6f756f;
+      --line: #ded8cc;
+      --paper: #fffaf1;
+      --panel: #f8f3ea;
+      --accent: #b84b36;
+      --accent-strong: #873424;
+      --green: #3f6f58;
+      --yellow: #e3af42;
+      --white: #ffffff;
+      --shadow: 0 18px 50px rgba(64, 47, 28, .14);
+      --radius: 8px;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(184, 75, 54, .07), transparent 28%),
+        linear-gradient(315deg, rgba(63, 111, 88, .1), transparent 34%),
+        #ece6da;
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) 1fr;
+    }
+
+    .editor {
+      background: rgba(255, 250, 241, .9);
+      border-right: 1px solid var(--line);
+      padding: 22px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      background: var(--accent);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 20px rgba(184, 75, 54, .22);
+      flex: 0 0 auto;
+    }
+
+    .mark svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-button,
+    .text-button {
+      min-height: 38px;
+      border-radius: var(--radius);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 0 12px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .icon-button {
+      width: 40px;
+      padding: 0;
+    }
+
+    .icon-button svg,
+    .text-button svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .icon-button:hover,
+    .text-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(184, 75, 54, .55);
+    }
+
+    .primary {
+      color: var(--white);
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .primary:hover {
+      background: var(--accent-strong);
+    }
+
+    .section {
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section h2 {
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      border-radius: var(--radius);
+      padding: 10px 11px;
+      outline: none;
+      min-height: 40px;
+    }
+
+    textarea {
+      min-height: 74px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(184, 75, 54, .13);
+    }
+
+    .two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .category-card {
+      background: rgba(255, 255, 255, .66);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .category-toolbar,
+    .item-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .small-actions {
+      display: flex;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .mini {
+      width: 32px;
+      height: 32px;
+      min-height: 32px;
+    }
+
+    .mini svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .menu-item-editor {
+      border-top: 1px dashed var(--line);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .preview-wrap {
+      padding: 28px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+
+    .preview-shell {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .preview-toolbar h2 {
+      font-size: 16px;
+    }
+
+    .menu-paper {
+      background: var(--paper);
+      border: 1px solid rgba(112, 91, 61, .25);
+      box-shadow: var(--shadow);
+      min-height: 760px;
+      padding: clamp(24px, 4vw, 54px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .menu-paper::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(184, 75, 54, .25);
+      pointer-events: none;
+    }
+
+    .menu-paper.compact {
+      --gap: 20px;
+    }
+
+    .menu-paper.elegant {
+      --accent: #7d5142;
+      --accent-strong: #49342c;
+      --green: #315b55;
+      --yellow: #d8a35e;
+    }
+
+    .menu-paper.fresh {
+      --accent: #287c66;
+      --accent-strong: #195848;
+      --green: #ad4e3e;
+      --yellow: #f0bd48;
+    }
+
+    .menu-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .menu-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .restaurant-name {
+      font-size: clamp(34px, 6vw, 72px);
+      line-height: .95;
+      font-weight: 900;
+      max-width: 800px;
+      overflow-wrap: anywhere;
+    }
+
+    .restaurant-meta {
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.7;
+      max-width: 640px;
+      white-space: pre-line;
+    }
+
+    .stamp {
+      width: 112px;
+      aspect-ratio: 1;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-weight: 900;
+      text-align: center;
+      transform: rotate(7deg);
+      padding: 14px;
+      line-height: 1.1;
+    }
+
+    .menu-categories {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--gap, 30px);
+      margin-top: 32px;
+    }
+
+    .menu-category {
+      break-inside: avoid;
+    }
+
+    .menu-category h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-strong);
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    .menu-category h3::before {
+      content: "";
+      width: 26px;
+      height: 10px;
+      background: var(--yellow);
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .dish {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px 18px;
+      padding: 13px 0;
+      border-bottom: 1px dotted rgba(32, 33, 36, .22);
+    }
+
+    .dish-name {
+      font-size: 17px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .dish-desc {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+      margin-top: -5px;
+    }
+
+    .dish-price {
+      color: var(--green);
+      font-weight: 900;
+      font-size: 17px;
+      white-space: nowrap;
+    }
+
+    .tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      grid-column: 1 / -1;
+    }
+
+    .tag {
+      border: 1px solid rgba(184, 75, 54, .28);
+      color: var(--accent-strong);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(255, 255, 255, .52);
+    }
+
+    .notice {
+      margin-top: 32px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(32, 33, 36, .18);
+      color: var(--muted);
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: rgba(255, 255, 255, .42);
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .editor,
+      .preview-wrap {
+        max-height: none;
+      }
+
+      .editor {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .menu-categories {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .editor,
+      .preview-wrap {
+        padding: 16px;
+      }
+
+      .topbar,
+      .preview-toolbar,
+      .menu-head {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .two {
+        grid-template-columns: 1fr;
+      }
+
+      .stamp {
+        width: 88px;
+      }
+    }
+
+    @media print {
+      body {
+        background: var(--paper);
+      }
+
+      .editor,
+      .preview-toolbar {
+        display: none;
+      }
+
+      .app {
+        display: block;
+      }
+
+      .preview-wrap {
+        padding: 0;
+        max-height: none;
+      }
+
+      .preview-shell {
+        max-width: none;
+      }
+
+      .menu-paper {
+        min-height: 100vh;
+        box-shadow: none;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="editor" aria-label="菜单编辑区">
+      <div class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7 2v8"></path><path d="M11 2v8"></path><path d="M7 10h4"></path><path d="M9 10v12"></path><path d="M17 2v20"></path><path d="M14 2c3 1 4 4 3 8"></path></svg>
+          </div>
+          <div>
+            <h1>餐饮菜单制作</h1>
+            <p class="subtitle">编辑内容，右侧实时预览</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>餐厅信息</h2>
+        </div>
+        <div class="form-grid">
+          <label>餐厅名称
+            <input id="restaurantName" maxlength="36" value="南城小馆">
+          </label>
+          <label>副标题
+            <input id="restaurantMeta" value="手作家常菜 · 午市 11:00-14:00 · 晚市 17:00-22:00">
+          </label>
+          <label>菜单备注
+            <textarea id="notice">所有菜品现点现做，可根据口味调整辣度。堂食、外带均可。</textarea>
+          </label>
+          <div class="two">
+            <label>风格
+              <select id="theme">
+                <option value="classic">热烈小馆</option>
+                <option value="elegant">雅致餐厅</option>
+                <option value="fresh">清新轻食</option>
+              </select>
+            </label>
+            <label>排版
+              <select id="density">
+                <option value="normal">舒展</option>
+                <option value="compact">紧凑</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>菜品分类</h2>
+          <button class="text-button primary" id="addCategory" type="button">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            新增分类
+          </button>
+        </div>
+        <div id="categoryEditors"></div>
+      </section>
+    </aside>
+
+    <section class="preview-wrap" aria-label="菜单预览区">
+      <div class="preview-shell">
+        <div class="preview-toolbar">
+          <h2>菜单预览</h2>
+          <div class="actions">
+            <button class="text-button" id="loadSample" type="button">
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>
+              示例
+            </button>
+            <button class="text-button" id="clearAll" type="button">
+              <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+              清空
+            </button>
+            <button class="text-button primary" id="printMenu" type="button">
+              <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v7H6z"></path></svg>
+              打印 / PDF
+            </button>
+          </div>
+        </div>
+
+        <article class="menu-paper" id="menuPaper">
+          <div class="menu-inner">
+            <header class="menu-head">
+              <div>
+                <h2 class="restaurant-name" id="previewName"></h2>
+                <p class="restaurant-meta" id="previewMeta"></p>
+              </div>
+              <div class="stamp">今日<br>菜单</div>
+            </header>
+            <div class="menu-categories" id="previewCategories"></div>
+            <p class="notice" id="previewNotice"></p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <template id="categoryTemplate">
+    <div class="category-card">
+      <div class="category-toolbar">
+        <label>分类名称
+          <input class="category-name" maxlength="20">
+        </label>
+        <div class="small-actions">
+          <button class="icon-button mini move-category-up" type="button" title="上移分类" aria-label="上移分类">
+            <svg viewBox="0 0 24 24"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
+          </button>
+          <button class="icon-button mini delete-category" type="button" title="删除分类" aria-label="删除分类">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div class="items"></div>
+      <button class="text-button add-item" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        添加菜品
+      </button>
+    </div>
+  </template>
+
+  <template id="itemTemplate">
+    <div class="menu-item-editor">
+      <div class="item-toolbar">
+        <strong>菜品</strong>
+        <div class="small-actions">
+          <button class="icon-button mini move-item-up" type="button" title="上移菜品" aria-label="上移菜品">
+            <svg viewBox="0 0 24 24"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
+          </button>
+          <button class="icon-button mini delete-item" type="button" title="删除菜品" aria-label="删除菜品">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="two">
+          <label>菜名
+            <input class="item-name" maxlength="28">
+          </label>
+          <label>价格
+            <input class="item-price" maxlength="12">
+          </label>
+        </div>
+        <label>描述
+          <textarea class="item-desc" maxlength="90"></textarea>
+        </label>
+        <label>标签
+          <input class="item-tags" placeholder="招牌, 微辣, 新品">
+        </label>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const defaultData = {
+      name: "南城小馆",
+      meta: "手作家常菜 · 午市 11:00-14:00 · 晚市 17:00-22:00",
+      notice: "所有菜品现点现做，可根据口味调整辣度。堂食、外带均可。",
+      theme: "classic",
+      density: "normal",
+      categories: [
+        {
+          name: "招牌热菜",
+          items: [
+            { name: "砂锅黄焖鸡", price: "¥38", desc: "鸡腿肉慢炖入味，配土豆、香菇和青椒。", tags: "招牌, 微辣" },
+            { name: "黑椒牛柳", price: "¥58", desc: "嫩牛柳快炒，黑椒香气浓郁。", tags: "人气" }
+          ]
+        },
+        {
+          name: "清爽凉菜",
+          items: [
+            { name: "桂花糯米藕", price: "¥26", desc: "糯米软甜，桂花蜜收尾。", tags: "甜口" },
+            { name: "藤椒手撕鸡", price: "¥32", desc: "鸡肉细嫩，藤椒清麻开胃。", tags: "微麻, 冷盘" }
+          ]
+        },
+        {
+          name: "主食点心",
+          items: [
+            { name: "葱油拌面", price: "¥18", desc: "熬香葱油拌细面，简单耐吃。", tags: "素食" },
+            { name: "鲜肉小笼", price: "¥24", desc: "一笼六只，汤汁饱满。", tags: "现蒸" }
+          ]
+        },
+        {
+          name: "饮品甜品",
+          items: [
+            { name: "杨枝甘露", price: "¥22", desc: "芒果、西柚与椰奶的经典组合。", tags: "冰甜品" },
+            { name: "手打柠檬茶", price: "¥16", desc: "鲜柠现打，茶香清亮。", tags: "冰饮" }
+          ]
+        }
+      ]
+    };
+
+    const storageKey = "single-page-menu-maker";
+    let data = loadData();
+
+    const els = {
+      restaurantName: document.querySelector("#restaurantName"),
+      restaurantMeta: document.querySelector("#restaurantMeta"),
+      notice: document.querySelector("#notice"),
+      theme: document.querySelector("#theme"),
+      density: document.querySelector("#density"),
+      categoryEditors: document.querySelector("#categoryEditors"),
+      previewName: document.querySelector("#previewName"),
+      previewMeta: document.querySelector("#previewMeta"),
+      previewNotice: document.querySelector("#previewNotice"),
+      previewCategories: document.querySelector("#previewCategories"),
+      menuPaper: document.querySelector("#menuPaper"),
+      categoryTemplate: document.querySelector("#categoryTemplate"),
+      itemTemplate: document.querySelector("#itemTemplate")
+    };
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved ? JSON.parse(saved) : structuredClone(defaultData);
+      } catch {
+        return structuredClone(defaultData);
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function escapeText(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function syncTopFields() {
+      els.restaurantName.value = data.name;
+      els.restaurantMeta.value = data.meta;
+      els.notice.value = data.notice;
+      els.theme.value = data.theme;
+      els.density.value = data.density;
+    }
+
+    function renderEditor() {
+      els.categoryEditors.innerHTML = "";
+
+      data.categories.forEach((category, categoryIndex) => {
+        const node = els.categoryTemplate.content.firstElementChild.cloneNode(true);
+        const categoryName = node.querySelector(".category-name");
+        categoryName.value = category.name;
+        categoryName.addEventListener("input", () => {
+          category.name = categoryName.value;
+          update();
+        });
+
+        node.querySelector(".delete-category").addEventListener("click", () => {
+          data.categories.splice(categoryIndex, 1);
+          renderAll();
+        });
+
+        node.querySelector(".move-category-up").addEventListener("click", () => {
+          if (categoryIndex === 0) return;
+          const [moved] = data.categories.splice(categoryIndex, 1);
+          data.categories.splice(categoryIndex - 1, 0, moved);
+          renderAll();
+        });
+
+        const items = node.querySelector(".items");
+        category.items.forEach((item, itemIndex) => {
+          const itemNode = els.itemTemplate.content.firstElementChild.cloneNode(true);
+          const nameInput = itemNode.querySelector(".item-name");
+          const priceInput = itemNode.querySelector(".item-price");
+          const descInput = itemNode.querySelector(".item-desc");
+          const tagsInput = itemNode.querySelector(".item-tags");
+
+          nameInput.value = item.name;
+          priceInput.value = item.price;
+          descInput.value = item.desc;
+          tagsInput.value = item.tags;
+
+          nameInput.addEventListener("input", () => { item.name = nameInput.value; update(); });
+          priceInput.addEventListener("input", () => { item.price = priceInput.value; update(); });
+          descInput.addEventListener("input", () => { item.desc = descInput.value; update(); });
+          tagsInput.addEventListener("input", () => { item.tags = tagsInput.value; update(); });
+
+          itemNode.querySelector(".delete-item").addEventListener("click", () => {
+            category.items.splice(itemIndex, 1);
+            renderAll();
+          });
+
+          itemNode.querySelector(".move-item-up").addEventListener("click", () => {
+            if (itemIndex === 0) return;
+            const [moved] = category.items.splice(itemIndex, 1);
+            category.items.splice(itemIndex - 1, 0, moved);
+            renderAll();
+          });
+
+          items.appendChild(itemNode);
+        });
+
+        node.querySelector(".add-item").addEventListener("click", () => {
+          category.items.push({ name: "新菜品", price: "¥", desc: "", tags: "" });
+          renderAll();
+        });
+
+        els.categoryEditors.appendChild(node);
+      });
+    }
+
+    function renderPreview() {
+      els.previewName.textContent = data.name || "餐厅名称";
+      els.previewMeta.textContent = data.meta || "";
+      els.previewNotice.textContent = data.notice || "";
+      els.menuPaper.className = `menu-paper ${data.theme} ${data.density}`;
+
+      if (!data.categories.length) {
+        els.previewCategories.innerHTML = '<div class="empty">添加分类和菜品后，菜单会显示在这里。</div>';
+        return;
+      }
+
+      els.previewCategories.innerHTML = data.categories.map(category => {
+        const items = category.items.map(item => {
+          const tags = String(item.tags || "")
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean)
+            .map(tag => `<span class="tag">${escapeText(tag)}</span>`)
+            .join("");
+
+          return `
+            <div class="dish">
+              <div class="dish-name">${escapeText(item.name || "未命名菜品")}</div>
+              <div class="dish-price">${escapeText(item.price || "")}</div>
+              ${item.desc ? `<div class="dish-desc">${escapeText(item.desc)}</div>` : ""}
+              ${tags ? `<div class="tags">${tags}</div>` : ""}
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <section class="menu-category">
+            <h3>${escapeText(category.name || "未命名分类")}</h3>
+            ${items || '<div class="empty">这个分类还没有菜品。</div>'}
+          </section>
+        `;
+      }).join("");
+    }
+
+    function update() {
+      data.name = els.restaurantName.value;
+      data.meta = els.restaurantMeta.value;
+      data.notice = els.notice.value;
+      data.theme = els.theme.value;
+      data.density = els.density.value;
+      saveData();
+      renderPreview();
+    }
+
+    function renderAll() {
+      saveData();
+      syncTopFields();
+      renderEditor();
+      renderPreview();
+    }
+
+    document.querySelector("#addCategory").addEventListener("click", () => {
+      data.categories.push({ name: "新分类", items: [{ name: "新菜品", price: "¥", desc: "", tags: "" }] });
+      renderAll();
+    });
+
+    document.querySelector("#loadSample").addEventListener("click", () => {
+      data = structuredClone(defaultData);
+      renderAll();
+    });
+
+    document.querySelector("#clearAll").addEventListener("click", () => {
+      data = {
+        name: "",
+        meta: "",
+        notice: "",
+        theme: els.theme.value,
+        density: els.density.value,
+        categories: []
+      };
+      renderAll();
+    });
+
+    document.querySelector("#printMenu").addEventListener("click", () => window.print());
+
+    [els.restaurantName, els.restaurantMeta, els.notice, els.theme, els.density].forEach(input => {
+      input.addEventListener("input", update);
+      input.addEventListener("change", update);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
