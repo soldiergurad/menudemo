@@ -288,7 +288,7 @@ export default function Home() {
               <Utensils size={24} strokeWidth={2} />
             </div>
             <div>
-              <h1 className="text-xl font-bold leading-tight">餐饮菜单制作</h1>
+              <h1 className="text-xl font-bold leading-tight">AI菜单制作</h1>
               <p className="mt-1 text-[13px] text-[var(--muted)]">编辑内容，右侧实时预览</p>
             </div>
           </div>
